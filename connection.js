@@ -129,7 +129,7 @@ Connection.prototype = {
         if (res.statusCode === 429) {
           var timeout = ((parseInt(res.headers["X-Retry-After"]) + 2) * 1000); //Parse rate-limit, add 2 seconds, convert to milliseconds.
           setTimeout(function() {
-            fulfill(self.get(endpoint));
+            fulfill(self.put(endpoint, data));
           }, retry);
         } else {
           // Else response good, parse and return body:
@@ -162,7 +162,7 @@ Connection.prototype = {
         if (res.statusCode === 429) {
           var timeout = ((parseInt(res.headers["X-Retry-After"]) + 2) * 1000); //Parse rate-limit, add 2 seconds, convert to milliseconds.
           setTimeout(function() {
-            fulfill(self.get(endpoint));
+            fulfill(self.post(endpoint, data));
           }, retry);
         } else {
           // Else response good, parse and return body:
@@ -194,7 +194,7 @@ Connection.prototype = {
         if (res.statusCode === 429) {
           var timeout = ((parseInt(res.headers["X-Retry-After"]) + 2) * 1000); //Parse rate-limit, add 2 seconds, convert to milliseconds.
           setTimeout(function() {
-            fulfill(self.get(endpoint));
+            fulfill(self.delete(endpoint));
           }, retry);
         } else {
           // Else response good, parse and return body:
