@@ -23,7 +23,7 @@ var Connection = require('./connection');
 
 // Initialize new API Connection:
 var api = new Connection({
-  hash:  'the store hash'
+  hash:  'the store hash',
   token: 'the store's oAuth API token',
   cid:   'your app client ID',
   host:  'https://api.bigcommerce.com' //The BigCommerce API Host
