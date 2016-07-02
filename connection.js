@@ -9,16 +9,12 @@
  * to the Bigcommerce API for the specified user's account.
  *
  * All HTTP methods return a Promise.
- * All methods also automatically handle rate-limiting, so that
- * requests are automatically re-tried without requiring additional handling. 
+ * The Promise is fulfilled by the handleResponse() method, which also
+ * will automatically retry rate-limited requests.
  *
- * @author Rob Mullins <rob@surerob.com>
+ * @author Rob Mullins rob@StoreRestore.io
  * @copyright SUREROB SOLUTIONS LLC, All Rights Reserved.
- * This file may be used free of charge, provided you leave credit.
- * There is no warranty on this file at all. Use at your own risk.
- * SureRob Solutions LLC will not be responsible by any means for any damages caused as a result of using this file. 
- *
- * @date 07/02/2016
+ * @date 10/24/2015
  */
 
 // Load class dependencies:
@@ -49,7 +45,7 @@ function Connection(config) {
   } else if (typeof config.cid === 'undefined') {
     throw new Error('Error: Connection needs app client id - config.cid.');
   } else if (typeof config.host === 'undefined') {
-    throw new Error('Error: Connection needs the BigComerce API URL - config.host.');
+    throw new Error('Error: Connection needs BigComerce API Host URL - config.host.');
   }
 
   // Format the full API URL:
@@ -64,7 +60,7 @@ Connection.prototype = {
 
   /**
    * @var object
-   * Config object containing API connect data.
+   * Config object containing database connect data.
    */
   config: null,
 
@@ -86,7 +82,7 @@ Connection.prototype = {
   get: function(endpoint) {
     var self = this;
     return new Promise(function(fulfill, reject) {
-      //Define request options:
+      // Make GET request:
       request(self.getRequestOptions('GET', endpoint), function(err, res, body) {
         // Check for client or BigCommerce error:
         if (err || res.statusCode !== 200) {
@@ -97,7 +93,7 @@ Connection.prototype = {
           var timeout = ((parseInt(res.headers["X-Retry-After"]) + 2) * 1000); //Parse rate-limit, add 2 seconds, convert to milliseconds.
           setTimeout(function() {
             fulfill(self.get(endpoint));
-          }, retry);
+          }, timeout);
         } else {
           // Else response good, parse and return body:
           fulfill(JSON.parse(body));
@@ -119,7 +115,7 @@ Connection.prototype = {
   put: function(endpoint, data) {
     var self = this;
     return new Promise(function(fulfill, reject) {
-      //Define request options:
+      // Make PUT request:
       request(self.getRequestOptions('PUT', endpoint, data), function(err, res, body) {
         // Check for client or BigCommerce error:
         if (err || res.statusCode !== 200) {
@@ -130,7 +126,7 @@ Connection.prototype = {
           var timeout = ((parseInt(res.headers["X-Retry-After"]) + 2) * 1000); //Parse rate-limit, add 2 seconds, convert to milliseconds.
           setTimeout(function() {
             fulfill(self.put(endpoint, data));
-          }, retry);
+          }, timeout);
         } else {
           // Else response good, parse and return body:
           fulfill(JSON.parse(body));
@@ -152,7 +148,7 @@ Connection.prototype = {
   post: function(endpoint, data) {
     var self = this;
     return new Promise(function(fulfill, reject) {
-      //Define request options:
+      // Make POST request:
       request(self.getRequestOptions('POST', endpoint, data), function(err, res, body) {
         // Check for client or BigCommerce error:
         if (err || res.statusCode !== 200) {
@@ -163,7 +159,7 @@ Connection.prototype = {
           var timeout = ((parseInt(res.headers["X-Retry-After"]) + 2) * 1000); //Parse rate-limit, add 2 seconds, convert to milliseconds.
           setTimeout(function() {
             fulfill(self.post(endpoint, data));
-          }, retry);
+          }, timeout);
         } else {
           // Else response good, parse and return body:
           fulfill(JSON.parse(body));
@@ -184,7 +180,7 @@ Connection.prototype = {
   delete: function(endpoint) {
     var self = this;
     return new Promise(function(fulfill, reject) {
-      //Define request options:
+      // Make DELETE request:
       request(self.getRequestOptions('DELETE', endpoint), function(err, res, body) {
         // Check for client or BigCommerce error:
         if (err || res.statusCode !== 200) {
@@ -195,7 +191,7 @@ Connection.prototype = {
           var timeout = ((parseInt(res.headers["X-Retry-After"]) + 2) * 1000); //Parse rate-limit, add 2 seconds, convert to milliseconds.
           setTimeout(function() {
             fulfill(self.delete(endpoint));
-          }, retry);
+          }, timeout);
         } else {
           // Else response good, parse and return body:
           fulfill(JSON.parse(body));
