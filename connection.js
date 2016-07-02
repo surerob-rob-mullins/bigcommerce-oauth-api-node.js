@@ -217,7 +217,7 @@ Connection.prototype = {
     // Return the Request Options:
     return {
       // URL will append a forward slash prior to the endpoint if it was left out:
-      url:    endpoint.substring(0,1) !== '/' ? host +'/' +endpoint : host +endpoint,
+      url:    endpoint.substring(0,1) !== '/' ? this.host +'/' +endpoint : this.host +endpoint,
       method: method,
       headers: {
         'Accept'       : 'application/json',
