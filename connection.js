@@ -108,7 +108,7 @@ Connection.prototype = {
   },
 
   /**
-   * Performs an HTTP GET request to the provided BC endpoint.
+   * Performs an HTTP PUT request to the provided BC endpoint.
    * The API path has already been set, so only the endpoint should be provided
    * WITH the beginning forward slash (/). Example: endpoint = '/products'.
    * NOTE: This file will self-correct if the forward slash was mistakenly left out. 
