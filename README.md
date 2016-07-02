@@ -12,7 +12,7 @@ You can install them as so: <br/>
 
 #Features
 1. Promise based. Every CRUD request returns a Promise for easy and organized Async control.
-2. Rate-Limit Handling. For every request made, if that request is rate-limited, the app will sleep and automatically retry that request. 3. Connection Pooling. Can set a max number of connections, so that requests will be throttled if you attempt to exceed this number. 
+2. Rate-Limit Handling. For every request made, if that request is rate-limited, the app will sleep and automatically retry that request.<br/> 3. Connection Pooling. Can set a max number of connections, so that requests will be throttled if you attempt to exceed this number. 
 
 #Usage
 Usage is fairly simple. Just require the connection file into your app, and initialize it with the neccessary oAuth credentials. 
