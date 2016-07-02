@@ -14,8 +14,7 @@
  *
  * @author Rob Mullins <rob@surerob.com>
  * @copyright SUREROB SOLUTIONS LLC, All Rights Reserved.
- * This file may be used free of charge for personal, non-profit purposes (IE to add extensions to your store).
- * Please contact us for licensing to use this file in conjunction with a for-profit service or app.
+ * This file may be used free of charge, provided you leave credit.
  * There is no warranty on this file at all. Use at your own risk.
  * SureRob Solutions LLC will not be responsible by any means for any damages caused as a result of using this file. 
  *
