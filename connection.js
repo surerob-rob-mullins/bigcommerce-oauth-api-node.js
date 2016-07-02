@@ -64,7 +64,7 @@ Connection.prototype = {
 
   /**
    * @var object
-   * Config object containing database connect data.
+   * Config object containing API connect data.
    */
   config: null,
 
