@@ -17,7 +17,7 @@ You can install them as so: <br/>
 
 #Usage
 Usage is fairly simple. Just require the connection file into your app, and initialize it with the neccessary oAuth credentials. 
-```
+```javascript
 // Load Dependencies:
 var Connection = require('./connection');
 
