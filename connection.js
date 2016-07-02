@@ -32,7 +32,7 @@ var request = require('request');
  *    config.hash  - The user's store hash.
  *    config.token - The user's oAuth token.
  *    config.cid   - StoreRestore's App Client ID.
- *    config.api   - BigCommerce API Base URL
+ *    config.host  - BigCommerce API Base URL
  */
 function Connection(config) {
   // Return new instance if this called without 'new'.
@@ -49,12 +49,12 @@ function Connection(config) {
     throw new Error('Error: Connection needs store oAuth token - config.token.');
   } else if (typeof config.cid === 'undefined') {
     throw new Error('Error: Connection needs app client id - config.cid.');
-  } else if (typeof config.api === 'undefined') {
-    throw new Error('Error: Connection needs BigComerce API URL - config.api.');
+  } else if (typeof config.host === 'undefined') {
+    throw new Error('Error: Connection needs the BigComerce API URL - config.host.');
   }
 
   // Format the full API URL:
-  this.host = config.api +'/stores/' +config.hash +'/v2';
+  this.host = config.host +'/stores/' +config.hash +'/v2';
 
   // Assign config locally:
   this.config = config;
