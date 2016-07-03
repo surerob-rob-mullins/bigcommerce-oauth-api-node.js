@@ -14,6 +14,8 @@
  *
  * @author Rob Mullins rob@StoreRestore.io
  * @copyright SUREROB SOLUTIONS LLC, All Rights Reserved.
+ * You may use this file free of charge, so long as you leave this original Copyright statement. 
+ * There is no warranty for use of this file. Neither the authors nor SureRob Solutions LLC shall be liable for damages caused by using this file. 
  * @date 10/24/2015
  */
 
