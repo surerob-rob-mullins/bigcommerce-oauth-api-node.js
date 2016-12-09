@@ -91,42 +91,145 @@ api.put('/products/1', {price: 29.99}).then(function(product) {
  * The speed for this will vary depending on the max number of connections you define. 
  */
 
-// Create the new category - @see https://developer.bigcommerce.com/api/stores/v2/categories#create-a-category
-api.post('/categories', {name: 'Half-Off!'}).then(function(category) {
-  // New category created. 
-  var category_id = category.id;
-  // Now determine total number of products - @see https://developer.bigcommerce.com/api/stores/v2/products#get-a-product-count
-  api.get('/products/count').then(function(count) {
-    var totalProducts = count.count;
-    // Prepare to get all products
-    var limit = 250; // The max number of produts we can get per API request. 
-    var totalPages = ceil(totalProducts / limit); // The total number of pages, at 250 products per page. 
-    
-    // Get all products:
-    for (x=1; x<=totalPages; x++) {
-      api.get('products?limit=' +limit +'&page=' +x).then(function(products) {
-        // Parse through each product:
-        products.forEach(function(e, i) {
-          // For each product, determine the new price, and new category collection
-          var newPrice = (products[i].price - (products[i].price * .5)); // 50% off
-          var newCategories = products[i].categories.push(category_id); // Add the 'Half-Off' category ID to the product's existing category collection.
-          // Finally, update the product:
-          api.put('/products/' +products[i].id, {price: newPrice, categories: newCategories}).then(function(response) {
-            console.log('Successfully updated product with ID=%d, new price = %d', response.id, response.price);
-          }).catch(function(e) {
-            console.log('Unable to update product - ' +e);
-          });
+//*** Execute the Run Sale program! ***//
+runSale();
+
+/**
+ * Begin the sale/product update process.
+ * You can optionally wrap this in a Promise if this is part of
+ * a larger process.
+ */
+function runSale() {
+  // Create the Clearence Category:
+  createCategory('Clearence!').then(function(cid) {
+    // Determine total # of product pages, with 250 products per page:
+    getTotalProductsCount().then(function(totalProducts) {
+      // Determine the Total Number of Pages, with a limit of 250 products per page:
+      var totalPages = ceil(totalProducts / limit); // Total Pages = (Total Products / Products Per Page)     
+      
+      /** ---------------------------------
+       * NOTE: This will retrieve all of the products, page by page, asychronously and in parallel!
+       */
+      // Get all products by page, 250 products per page.
+      var updated = 0; // Counter to track when all products finished update process.
+      for (x = 1; x <= totalPages; x++) {
+        // Get a single page of products:
+        getProducts(page, limit).then(function(products) {
+          // Parse through each individual product...
+          products.forEach(function(element, index) {
+            // For Each product, Calculate the Sales Price and Construct the new Category List:
+            var salesPrice = (products[i].price / 2);
+            var categories = products[i].categories.push(cid); // We are pushing the 'Clearence' category ID to the existing group of category IDs for this product.
+            updateProduct(products[i].id, {sale_price: salesPrice, categories: categories}).then(function(res) {
+              updated++; // Increment updated products count.
+              // Check if all products have been processed:
+              if (updated === totalProducts) {
+                console.log('Product Sale Update Process has Finished!');
+                return 1; // End runSale() function. Process Complete!
+              }
+            }).catch(function(e) {
+              updated++; // Increment updated products. Even if the product failed, we just want to track when all have finished processed.
+              console.log('Caught error updating product.');
+            });
+          }); // END products.forEach
+        }).catch(function(e) {
+          console.log('Caught error getting a page of products.');
         });
-      }).catch(function(e) {
-        console.log('Error getting products - ' +e);
-      });
-    }
+      } // END for 
+      //---------------------------------//
+    
+    }).catch(function(e) {
+      console.log('Caught error getting total product count.');
+    });
   }).catch(function(e) {
-    console.log('Error getting total product count - ' +e);
+    console.log('Caught error creating category.');
+  }); 
+}
+
+
+/**
+ * Creates a new category with a given name.
+ * @param name <string> - The name of the category to create.
+ * @return Promise - Fulfilled with category ID on success. Reject on fail.
+ */
+function createCategory(name) {
+  return new Promise(function(fulfill, reject) {
+    // Reject if 'name' parameter not set:
+    if (typeof name === 'undefined') {
+      return reject('Error: Category name not provided.');
+    }
+    // Perform API POST - Create the Category:
+    api.post('/categories', {name: name}).then(function(category) {
+      fulfill(category.id);
+    }).catch(function(e) {
+      reject('Error: Could not create category. Info: ', e);
+    });
   });
-}).catch(function(e) {
-  console.log('Error creating the half-off category - ' +e);
-});
+}
+
+/**
+ * Gets the total number of products for the store. 
+ * @return Promise - Fulfilled with the total product count on success. Reject on fail.
+ */
+function getTotalProductsCount() {
+  return new Promise(function(fulfill, reject) {
+    // Perform API GET - Get Total Number of Products:
+    api.get('/products/count').then(function(count) {
+      fulfill(count.count); 
+    }).catch(function(e) {
+      reject('Error: Could not get products count. Info: ', e);
+    });
+  });
+}
+
+/**
+ * Gets a page of products. 
+ * @param page  <int> - The page number to retrieve.
+ * @param limit <int> - The max number of products per page.
+ * @return Promise    - Fulfilled with array of products on success. Reject on fail.
+ */
+function getProducts(page, limit) {
+  return new Promise(function(fulfill, reject) {
+    // Reject if 'name' || 'limit' parameter not set:
+    if (typeof page === 'undefined') {
+      return reject('Error: Page not provided.');
+    } else if (typeof limit === 'undefined') {
+      return reject('Error: Limit not provided.');
+    }
+    // Perform API GET - Get a single page of products:
+    api.get('/products?limit=' +limit +'&page=' +page).then(function(products) {
+      fulfill(products);
+    }).catch(function(e) {
+      reject('Error: Could not get page of products. Info: ', e);
+    });
+  });
+}
+
+/**
+ * Updates an individual product by ID.
+ * @param id <int>       - The ID of the product to update.
+ * @param update <mixed> - Object containing the product update properties.
+ * @return Promise       - Fulfilled with true on success. Reject on fail.
+ */
+function updateProduct(id, update) {
+  return new Promise(function(fulfill, reject) {
+    // Reject if 'name' || 'limit' parameter not set:
+    if (typeof id === 'undefined') {
+      return reject('Error: Product ID not provided.');
+    } else if (typeof update === 'undefined') {
+      return reject('Error: Product Update Object not provided.');
+    }
+    // Perform API PUT - Update the individual product:
+    api.put('/products/' +.id, update).then(function(res) {
+      console.log('Successfully updated product with ID=%d, sale price = %d', res.id, res.sale_price);
+      fulfill(true);
+    }).catch(function(e) {
+      console.log("Unable to update product with ID = %d", +id);
+      reject('Error: Could not update product. Info: ', e);
+    });
+  });
+}
+
 
 // And there you have it. The cool thing here is that the connection will automatically handle the rate-limiting for you. 
 // Hope you enjoy and find this useful :) ~ rob ~
